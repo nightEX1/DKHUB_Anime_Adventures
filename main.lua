@@ -5,13 +5,29 @@ local version = "v2.0.0b31.V2"
 repeat  task.wait() until game:IsLoaded()
 if game.PlaceId == 8304191830 then
     repeat task.wait() until game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name)
-    repeat task.wait() until game.Players.LocalPlayer.PlayerGui:FindFirstChild("collection"):FindFirstChild("grid"):FindFirstChild("List"):FindFirstChild("Outer"):FindFirstChild("UnitFrames")
-    repeat task.wait() until game.ReplicatedStorage.packages:FindFirstChild("assets")
-    repeat task.wait() until game.ReplicatedStorage.packages:FindFirstChild("StarterGui")
+    repeat
+        task.wait()
+        local pg = game.Players.LocalPlayer:FindFirstChild("PlayerGui")
+        local collection = pg and pg:FindFirstChild("collection")
+        local grid = collection and collection:FindFirstChild("grid")
+        local list = grid and grid:FindFirstChild("List")
+        local outer = list and list:FindFirstChild("Outer")
+        local frames = outer and outer:FindFirstChild("UnitFrames")
+    until frames
+    local packages = game:GetService("ReplicatedStorage"):WaitForChild("packages", 30)
+    if packages then
+        packages:WaitForChild("assets", 30)
+        packages:WaitForChild("StarterGui", 30)
+    end
 else
     repeat task.wait() until game.Workspace:FindFirstChild(game.Players.LocalPlayer.Name)
-    game:GetService("ReplicatedStorage").endpoints.client_to_server.vote_start:InvokeServer()
-    repeat task.wait() until game:GetService("Workspace")["_waves_started"].Value == true
+    pcall(function()
+        local endpoints = game:GetService("ReplicatedStorage"):FindFirstChild("endpoints")
+        local c2s = endpoints and endpoints:FindFirstChild("client_to_server")
+        local vote = c2s and c2s:FindFirstChild("vote_start")
+        if vote then vote:InvokeServer() end
+    end)
+    repeat task.wait() until game:GetService("Workspace"):FindFirstChild("_waves_started") and game:GetService("Workspace")["_waves_started"].Value == true
 end
 
 ------------------------------
@@ -145,7 +161,14 @@ function comma_value(p1)
 end;
 ----------------endMap & ID Map
 getgenv().item = "-"
-plr.PlayerGui:FindFirstChild("HatchInfo"):FindFirstChild("holder"):FindFirstChild("info1"):FindFirstChild("UnitName").Text = getgenv().item
+pcall(function()
+    local pg = plr:FindFirstChild("PlayerGui")
+    local hatch = pg and pg:FindFirstChild("HatchInfo")
+    local holder = hatch and hatch:FindFirstChild("holder")
+    local info1 = holder and holder:FindFirstChild("info1")
+    local unitName = info1 and info1:FindFirstChild("UnitName")
+    if unitName then unitName.Text = getgenv().item end
+end)
 function webhook()
     if Settings.WebhookEnabled then
     local url = Settings.WebhookUrl
@@ -3728,9 +3751,9 @@ function autoload()
     pcall(function()
         local exec = tostring(identifyexecutor())
         if exec == "Synapse X" and Settings.AutoLoadScript then
-            syn.queue_on_teleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/ArponAG/Scripts/main/AnimeAdventures_v2__Beta.lua'))()")
+            syn.queue_on_teleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/nightEX1/DKHUB_Anime_Adventures/main/main.lua'))()")
         elseif exec ~= "Synapse X" and Settings.AutoLoadScript then
-            queue_on_teleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/ArponAG/Scripts/main/AnimeAdventures_v2__Beta.lua'))()")
+            queue_on_teleport("loadstring(game:HttpGet('https://raw.githubusercontent.com/nightEX1/DKHUB_Anime_Adventures/main/main.lua'))()")
         end
     end)
 end
@@ -3740,7 +3763,7 @@ if Settings.AutoLoadScript then
 end
 
 function autoload2()
-    loadstring(game:HttpGet('https://raw.githubusercontent.com/ArponAG/Scripts/main/AnimeAdventures_v2__Beta.lua'))()
+    loadstring(game:HttpGet('https://raw.githubusercontent.com/nightEX1/DKHUB_Anime_Adventures/main/main.lua'))()
 end
 
 if Settings.refarmc then
